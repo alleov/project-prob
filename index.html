@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>¿Spam o legítimo? · Teorema de Bayes · BUAP</title>
+<meta name="description" content="Proyecto integrador de Probabilidad y Estadística (BUAP): análisis estadístico de 33,665 correos y un detector de spam basado en el Teorema de Bayes.">
+<link rel="icon" href="img/buap.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+<!-- ================= NAVEGACIÓN ================= -->
+<nav class="nav" aria-label="Secciones">
+  <div class="envoltura">
+    <a class="marca" href="#inicio">Spam o legítimo</a>
+    <ul>
+      <li><a href="#problema">Problema</a></li>
+      <li><a href="#teoria">Teoría</a></li>
+      <li><a href="#calculadora">Calculadora</a></li>
+      <li><a href="#metodo">Método</a></li>
+      <li><a href="#resultados">Resultados</a></li>
+      <li><a href="#detector">Detector</a></li>
+      <li><a href="#conclusiones">Conclusiones</a></li>
+      <li><a href="#equipo">Equipo</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ================= PORTADA ================= -->
+<header class="portada" id="inicio">
+  <div class="envoltura">
+    <div class="uni"><img src="img/buap.png" alt="Escudo de la BUAP">Benemérita Universidad Autónoma de Puebla · Probabilidad y Estadística</div>
+    <h1>¿Spam o legítimo?<br><span>El Teorema de Bayes lo decide.</span></h1>
+    <p class="sub">Analizamos 33,665 correos reales y construimos un detector que calcula, palabra por palabra, la probabilidad de que un correo sea fraudulento.</p>
+    <div class="botones">
+      <a class="boton lleno" href="#detector">Probar el detector</a>
+      <a class="boton borde" href="#teoria">Cómo funciona</a>
+    </div>
+    <div class="cifra-hero">
+      <div><b>99.0 %</b><span>de aciertos en 6,733 correos nuevos</span></div>
+      <div><b>33,665</b><span>correos reales analizados</span></div>
+      <div><b>p &lt; 0.001</b><span>en las tres pruebas de hipótesis</span></div>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- ================= PROBLEMA ================= -->
+<section class="seccion" id="problema">
+  <div class="envoltura">
+    <span class="etiqueta">El problema</span>
+    <h2>Casi la mitad del correo del mundo es spam.</h2>
+    <p class="sub">Y una parte busca robar dinero o contraseñas. Cuando abrimos un correo no vemos la intención de quien lo escribió: solo vemos evidencia. Decidir con evidencia incompleta es un problema de probabilidad condicional.</p>
+    <div class="rejilla r4 aparece">
+      <div class="tarjeta"><div class="num-grande">45 %</div><p>del tráfico mundial de correo en 2025 fue spam.</p></div>
+      <div class="tarjeta"><div class="num-grande">893 M</div><p>intentos de abrir enlaces de phishing bloqueados por Kaspersky en 2024.</p></div>
+      <div class="tarjeta"><div class="num-grande">16,600 M</div><p>de dólares perdidos por delitos en internet denunciados al FBI en 2024.</p></div>
+      <div class="tarjeta"><div class="num-grande">193 mil</div><p>denuncias de phishing: el delito más reportado al FBI en 2024.</p></div>
+    </div>
+    <p class="fuente">Fuentes: Kaspersky (2025, 2026); FBI, Internet Crime Complaint Center, <i>2024 Internet Crime Report</i>.</p>
+  </div>
+</section>
+
+<!-- ================= PREGUNTA ================= -->
+<section class="seccion oscura">
+  <div class="envoltura centro">
+    <span class="etiqueta">Pregunta de investigación</span>
+    <h2>¿Los correos fraudulentos se distinguen estadísticamente de los legítimos, y puede el Teorema de Bayes detectarlos de forma automática?</h2>
+    <div class="rejilla r3 aparece" style="text-align:left">
+      <div class="tarjeta"><span class="paso">1 · Describir</span><p>Estadística descriptiva: proporciones, medias, medianas y distribuciones.</p></div>
+      <div class="tarjeta"><span class="paso">2 · Probar</span><p>Pruebas de hipótesis: ji-cuadrada, Z de dos proporciones y U de Mann-Whitney.</p></div>
+      <div class="tarjeta"><span class="paso">3 · Clasificar</span><p>Un clasificador Naive Bayes programado desde cero y esta página interactiva.</p></div>
+    </div>
+    <p class="sub">Hipótesis de trabajo: un modelo bayesiano basado en palabras puede superar el 95 % de exactitud.</p>
+  </div>
+</section>
+
+<!-- ================= TEORÍA ================= -->
+<section class="seccion alt" id="teoria">
+  <div class="envoltura">
+    <span class="etiqueta">Marco teórico</span>
+    <h2>Bayes invierte la pregunta.</h2>
+    <p class="sub">En los datos podemos medir qué tan común es una palabra dentro del spam. Lo que queremos saber es lo contrario: qué tan probable es que un correo sea spam si contiene esa palabra. El Teorema de Bayes conecta ambas.</p>
+
+    <div class="formula-caja aparece">
+      <div class="formula">
+        <span><i>P</i>(S | <i>w</i>) =</span>
+        <span class="frac"><span><i>P</i>(<i>w</i> | S) · <i>P</i>(S)</span><span><i>P</i>(<i>w</i> | S) · <i>P</i>(S) + <i>P</i>(<i>w</i> | H) · <i>P</i>(H)</span></span>
+      </div>
+      <p class="leyenda-formula">S = spam · H = legítimo · <i>w</i> = una palabra del correo. El denominador es la ley de probabilidad total.</p>
+    </div>
+
+    <div class="rejilla r3">
+      <div class="tarjeta"><h3>A priori · <i>P</i>(S)</h3><p>Lo que creemos antes de leer el correo: la proporción de spam en la muestra, 0.509.</p></div>
+      <div class="tarjeta"><h3>Verosimilitud · <i>P</i>(<i>w</i> | S)</h3><p>Qué tan común es la palabra dentro del spam. Se estima con frecuencias relativas.</p></div>
+      <div class="tarjeta"><h3>A posteriori · <i>P</i>(S | <i>w</i>)</h3><p>Lo que creemos después de ver la palabra. Es lo que el detector calcula.</p></div>
+    </div>
+
+    <h3 style="margin-top:64px; font-size:28px">De una palabra a todo el correo: Naive Bayes</h3>
+    <p class="sub" style="font-size:19px">Un correo tiene cientos de palabras. Si suponemos que son independientes dada la clase (el supuesto “ingenuo”), la probabilidad conjunta se vuelve un producto. Se calcula igual para H y gana la clase más probable.</p>
+    <div class="formula-caja aparece" style="margin-top:28px">
+      <div class="formula" style="margin-top:6px"><span><i>P</i>(S | <i>w</i><sub>1</sub>, …, <i>w<sub>n</sub></i>) ∝ <i>P</i>(S) · ∏<sub><i>i</i>=1</sub><sup><i>n</i></sup> <i>P</i>(<i>w<sub>i</sub></i> | S)</span></div>
+    </div>
+    <div class="rejilla r3">
+      <div class="tarjeta"><h3>Suavizado de Laplace</h3><p>Sumamos 1 a cada conteo: <i>P̂</i>(<i>w</i> | C) = (conteo + 1) / (total de C + |V|). Así, una palabra nunca vista no vuelve cero todo el producto.</p></div>
+      <div class="tarjeta"><h3>Logaritmos</h3><p>300 probabilidades de 0.001 multiplicadas dan 10<sup>−900</sup>: la computadora lo redondea a 0. Sumando logaritmos el resultado es −2,072, un número normal.</p></div>
+      <div class="tarjeta"><h3>Umbral de decisión</h3><p>Si <i>P</i>(S | correo) ≥ 0.5, el correo se marca como spam. Mover el umbral cambia el balance entre los dos tipos de error.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CALCULADORA ================= -->
+<section class="seccion" id="calculadora">
+  <div class="envoltura">
+    <span class="etiqueta">Calculadora interactiva</span>
+    <h2>Mueve la evidencia. Mira cómo cambia la creencia.</h2>
+    <p class="sub">Elige una palabra real de nuestros datos o ajusta las probabilidades. La palabra “money” aparece en el 16.6 % del spam y en el 3.0 % de los legítimos: basta para subir la probabilidad de spam de 51 % a 85 %.</p>
+    <div class="calc">
+      <div>
+        <div class="chips" id="chips-palabras" role="group" aria-label="Palabras de ejemplo"></div>
+        <div class="control"><label for="r-prior">A priori P(spam) <output id="o-prior">0.509</output></label><input type="range" id="r-prior" min="0.01" max="0.99" step="0.001" value="0.509"></div>
+        <div class="control"><label for="r-ws">P(palabra | spam) <output id="o-ws">0.166</output></label><input type="range" id="r-ws" min="0.001" max="0.6" step="0.001" value="0.166"></div>
+        <div class="control"><label for="r-wh">P(palabra | legítimo) <output id="o-wh">0.030</output></label><input type="range" id="r-wh" min="0.001" max="0.6" step="0.001" value="0.030"></div>
+        <p class="nota">Prueba bajar la probabilidad a priori a 0.10: con la misma palabra, la probabilidad final baja a 0.38. Lo que creemos al inicio importa.</p>
+      </div>
+      <div class="resultado-calc" aria-live="polite">
+        <div style="font-size:15px; color:#C9D1A9">P(spam | palabra)</div>
+        <div class="valor" id="c-post">0.85</div>
+        <div class="antes-despues"><div>antes<b id="c-antes">51 %</b></div><div>después<b id="c-despues">85 %</b></div></div>
+        <div class="desarrollo" id="c-desarrollo"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= APLICACIONES ================= -->
+<section class="seccion alt">
+  <div class="envoltura">
+    <span class="etiqueta">Aplicaciones investigadas</span>
+    <h2>La estadística protege el correo en varias capas.</h2>
+    <p class="sub">Revisamos cinco aplicaciones y elegimos el filtro de contenido porque usa el Teorema de Bayes de forma directa. La idea la propusieron Sahami y colaboradores (1998) y la popularizó Paul Graham en 2002.</p>
+    <div class="tabla-env aparece">
+      <table>
+        <thead><tr><th>Aplicación</th><th>Herramienta estadística</th><th>Dónde se usa</th></tr></thead>
+        <tbody>
+          <tr><td class="si">Filtro de contenido (elegida)</td><td>Teorema de Bayes, clasificador Naive Bayes</td><td>SpamAssassin, Thunderbird</td></tr>
+          <tr><td>Detección de enlaces de phishing</td><td>Regresión logística sobre rasgos de la URL</td><td>Navegadores y pasarelas de correo</td></tr>
+          <tr><td>Reputación del remitente</td><td>Proporciones, tasas de quejas e intervalos de confianza</td><td>Gmail, Outlook, listas negras</td></tr>
+          <tr><td>Fraude al CEO (BEC)</td><td>Detección de anomalías con puntajes Z</td><td>Bancos y empresas</td></tr>
+          <tr><td>Simulacros de phishing</td><td>Prueba de dos proporciones (clics antes y después de capacitar)</td><td>Áreas de seguridad informática</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MÉTODO ================= -->
+<section class="seccion" id="metodo">
+  <div class="envoltura">
+    <span class="etiqueta">De la teoría a la práctica</span>
+    <h2>Cinco pasos de la fórmula al programa.</h2>
+    <p class="sub">Usamos el corpus público Enron-Spam (Metsis, Androutsopoulos y Paliouras, 2006): 33,716 correos en inglés; quitamos 51 vacíos y quedaron 33,665, de los cuales 17,120 son spam y 16,545 legítimos.</p>
+    <div class="rejilla r4 aparece" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr))">
+      <div class="tarjeta"><span class="paso">Paso 1</span><h3>Datos</h3><p>33,665 correos reales ya etiquetados como spam o legítimos.</p></div>
+      <div class="tarjeta"><span class="paso">Paso 2</span><h3>Tokenizar</h3><p>Texto en minúsculas, separado en palabras de 2 o más letras.</p></div>
+      <div class="tarjeta"><span class="paso">Paso 3</span><h3>Estimar</h3><p><i>P</i>(<i>w</i> | clase) con frecuencias relativas y suavizado de Laplace.</p></div>
+      <div class="tarjeta"><span class="paso">Paso 4</span><h3>Calcular</h3><p>Suma de logaritmos por clase y regreso a <i>P</i>(spam | correo).</p></div>
+      <div class="tarjeta"><span class="paso">Paso 5</span><h3>Evaluar</h3><p>80 % para entrenar (26,932), 20 % para probar (6,733) y validación cruzada.</p></div>
+    </div>
+    <p class="fuente">Programado desde cero en Python (pandas, NumPy, SciPy y Matplotlib). Verificado con scikit-learn: la misma exactitud, 98.99 %.</p>
+  </div>
+</section>
+
+<!-- ================= RESULTADOS ================= -->
+<section class="seccion alt" id="resultados">
+  <div class="envoltura">
+    <span class="etiqueta">Resultados</span>
+    <h2>El spam deja huellas medibles.</h2>
+    <p class="sub">Los enlaces aparecen cuatro veces más en el spam y el signo “!” más de tres veces. El spam también es más corto: su mediana es de 137 palabras contra 175 en los legítimos.</p>
+
+    <div class="rejilla r2">
+      <div class="grafica aparece">
+        <h3>Rasgos de cada clase</h3>
+        <p class="nota">Porcentaje de correos de cada clase que tienen el rasgo.</p>
+        <div class="leyenda"><span><i style="background:var(--olivo-600)"></i>Legítimo</span><span><i style="background:var(--spam)"></i>Spam</span></div>
+        <div id="g-rasgos"></div>
+      </div>
+      <div class="grafica aparece">
+        <h3>Teorema de Bayes por palabra</h3>
+        <p class="nota"><i>P</i>(spam | la palabra aparece). La línea marca la probabilidad a priori, 0.51.</p>
+        <div id="g-palabras"></div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:72px; font-size:28px">Las diferencias no son casualidad</h3>
+    <p class="sub" style="font-size:19px">Las tres hipótesis nulas se rechazan con α = 0.05. Pero con 33 mil datos casi todo resulta significativo, así que medimos también el tamaño del efecto: la V de Cramér es 0.29, una asociación moderada. Ningún rasgo basta solo; hay que combinar la evidencia.</p>
+    <div class="tabla-env aparece">
+      <table>
+        <thead><tr><th>Prueba</th><th>Hipótesis nula H₀</th><th>Estadístico</th><th>Valor p</th><th>Decisión</th></tr></thead>
+        <tbody>
+          <tr><td>Ji-cuadrada de independencia</td><td>Tener enlace es independiente de ser spam</td><td class="n">χ² = 2,833.2 · gl = 1</td><td class="n">&lt; 0.001</td><td class="si">Rechazar H₀</td></tr>
+          <tr><td>Z de dos proporciones</td><td>Igual proporción de correos con “$” en ambas clases</td><td class="n">Z = 32.0</td><td class="n">&lt; 0.001</td><td class="si">Rechazar H₀</td></tr>
+          <tr><td>U de Mann-Whitney</td><td>La longitud tiene la misma distribución en ambas clases</td><td class="n">U = 128,733,974</td><td class="n">2.1 × 10⁻⁴⁷</td><td class="si">Rechazar H₀</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fuente">Intervalos de confianza al 95 % para la proporción de correos con “$”: spam 27.7 % a 29.0 %; legítimos 13.5 % a 14.6 %. No se traslapan.</p>
+
+    <h3 style="margin-top:72px; font-size:28px">El clasificador acertó 99 de cada 100 correos nuevos</h3>
+    <div class="rejilla r2">
+      <div class="grafica aparece">
+        <h3>Matriz de confusión</h3>
+        <p class="nota">6,733 correos que el modelo nunca vio. La diagonal son los aciertos.</p>
+        <div class="matriz" id="g-matriz"></div>
+      </div>
+      <div class="grafica aparece">
+        <h3>Métricas</h3>
+        <p class="nota">Conjunto de prueba, umbral 0.5.</p>
+        <table>
+          <tbody>
+            <tr><td>Exactitud<br><span class="nota">IC 95 %: 98.75 % a 99.23 %</span></td><td class="n"><b>98.99 %</b></td></tr>
+            <tr><td>Precisión</td><td class="n">98.97 %</td></tr>
+            <tr><td>Sensibilidad</td><td class="n">99.03 %</td></tr>
+            <tr><td>Especificidad</td><td class="n">98.95 %</td></tr>
+            <tr><td>F1</td><td class="n">99.00 %</td></tr>
+            <tr><td>Validación cruzada (5 pliegues)</td><td class="n">98.46 % ± 0.11</td></tr>
+            <tr><td>Línea base (adivinar la clase mayoritaria)</td><td class="n">50.4 %</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="grafica aparece" style="margin-top:18px">
+      <h3>El umbral: un compromiso entre dos errores</h3>
+      <p class="nota">Subir el umbral reduce los correos legítimos enviados a spam (precisión) pero deja pasar más spam (sensibilidad).</p>
+      <div class="leyenda"><span><i style="background:var(--olivo-600)"></i>Precisión</span><span><i style="background:var(--spam)"></i>Sensibilidad</span></div>
+      <div class="fig" id="g-umbral"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DETECTOR ================= -->
+<section class="seccion" id="detector">
+  <div class="envoltura">
+    <span class="etiqueta">La aplicación</span>
+    <h2>Pruébalo con cualquier correo.</h2>
+    <p class="sub">Pega un correo en inglés (el idioma de los datos de entrenamiento). El detector suma la evidencia de cada palabra y calcula la probabilidad de que sea spam. Todo ocurre en tu navegador: el texto no se envía a ningún lado.</p>
+    <div class="detector">
+      <div>
+        <label for="txt" style="font-weight:600; font-size:15px; display:block; margin-bottom:8px">Texto del correo (asunto y cuerpo)</label>
+        <textarea id="txt" spellcheck="false"></textarea>
+        <div class="chips" id="chips-ejemplos" role="group" aria-label="Correos de ejemplo" style="margin-top:12px"></div>
+        <p class="nota">Ejemplos escritos por el equipo para la demostración. El modelo de esta página usa las 6,000 palabras más frecuentes (97.8 % de exactitud).</p>
+      </div>
+      <div class="dictamen" aria-live="polite">
+        <div class="nota" style="margin:0">P(spam | correo)</div>
+        <div class="valor" id="d-pct">—</div>
+        <span class="etiqueta-res" id="d-tag">Esperando texto</span>
+        <div class="medidor"><div class="aguja" id="d-aguja" style="left:50%"></div></div>
+        <div class="escala"><span>0 · legítimo</span><span>umbral 0.5</span><span>1 · spam</span></div>
+        <div class="datos-mini">
+          <div>Palabras analizadas<b id="d-n">0</b></div>
+          <div>Palabras desconocidas<b id="d-u">0</b></div>
+          <div>log P(S) + Σ log P(w | S)<b id="d-ls">—</b></div>
+          <div>log P(H) + Σ log P(w | H)<b id="d-lh">—</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="evidencia">
+      <div><h3 style="font-size:17px; margin-bottom:8px; color:#8A5416">Empujan hacia spam</h3><div id="ev-s"></div></div>
+      <div><h3 style="font-size:17px; margin-bottom:8px; color:var(--olivo-700)">Empujan hacia legítimo</h3><div id="ev-h"></div></div>
+    </div>
+    <p class="nota" style="margin-top:14px">El número “×” es la razón de verosimilitud: cuántas veces más probable es esa palabra en una clase que en la otra.</p>
+  </div>
+</section>
+
+<!-- ================= CONCLUSIONES ================= -->
+<section class="seccion alt" id="conclusiones">
+  <div class="envoltura">
+    <span class="etiqueta">Conclusiones</span>
+    <h2>Sí: el spam se distingue, y Bayes lo detecta.</h2>
+    <div class="rejilla r2 aparece">
+      <div class="tarjeta"><h3>Los datos tienen patrones</h3><p>El spam usa 4 veces más enlaces, 3.2 veces más “!” y el doble de “$”, y es más corto.</p></div>
+      <div class="tarjeta"><h3>No es casualidad</h3><p>Tres pruebas de hipótesis rechazaron H₀ con p &lt; 0.001; la V de Cramér de 0.29 muestra que ningún rasgo basta solo.</p></div>
+      <div class="tarjeta"><h3>Bayes convierte evidencia en probabilidad</h3><p>Una sola palabra como “money” sube la probabilidad de spam de 51 % a 85 %.</p></div>
+      <div class="tarjeta"><h3>Un modelo simple, 99 % de exactitud</h3><p>Aunque el supuesto de independencia es falso, para clasificar basta con que la clase correcta quede más alta.</p></div>
+    </div>
+    <h3 style="margin-top:64px; font-size:28px">Limitaciones</h3>
+    <div class="rejilla r3">
+      <div class="tarjeta"><h3>Fraude bien escrito</h3><p>Un phishing disfrazado de factura (“please find attached the invoice… confirm the payment today”) obtiene menos de 0.01 %: un falso negativo.</p></div>
+      <div class="tarjeta"><h3>Sesgo de la muestra</h3><p>Los legítimos son de una sola empresa (Enron) y el spam es de 2005 o antes. El modelo aprendió que “enron” significa legítimo.</p></div>
+      <div class="tarjeta"><h3>Solo lee palabras</h3><p>No revisa remitente, dominio de los enlaces ni adjuntos, y está entrenado en inglés: para correos en español habría que reentrenarlo.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= EQUIPO ================= -->
+<section class="seccion" id="equipo">
+  <div class="envoltura centro">
+    <span class="etiqueta">Equipo</span>
+    <h2>Quiénes hicimos este proyecto.</h2>
+    <p class="sub">Proyecto integrador · Probabilidad y Estadística · Benemérita Universidad Autónoma de Puebla<br>
+      </mark>· Noviembre de 2026</p>
+    <div class="rejilla r3" id="lista-equipo" style="text-align:center"></div>
+  </div>
+</section>
+
+<!-- ================= REFERENCIAS Y DESCARGAS ================= -->
+<section class="seccion alt" id="referencias">
+  <div class="envoltura">
+    <span class="etiqueta">Descargas</span>
+    <h2>Reporte, código y datos.</h2>
+    <div class="botones" style="justify-content:flex-start">
+      <a class="boton lleno" href="descargas/reporte.pdf" download>Descargar el reporte (PDF)</a>
+      <a class="boton borde" href="descargas/analisis_correos.py" download>Descargar el código (Python)</a>
+      <a class="boton borde" href="https://github.com/MWiechmann/enron_spam_data" target="_blank" rel="noopener">Datos: Enron-Spam</a>
+    </div>
+
+    <h3 style="margin-top:56px; font-size:28px">Referencias</h3>
+    <ol class="refs">
+      <li>Androutsopoulos, I., et al. (2000). <i>An experimental comparison of Naive Bayesian and keyword-based anti-spam filtering with personal e-mail messages</i>. ACM SIGIR.</li>
+      <li>Federal Bureau of Investigation, Internet Crime Complaint Center. (2025). <i>2024 Internet Crime Report</i>.</li>
+      <li>Graham, P. (2002). <i>A plan for spam</i>.</li>
+      <li>Kaspersky. (2025, 18 de febrero). <i>Kaspersky reports nearly 900 million phishing attempts in 2024 as cyber threats increase</i>.</li>
+      <li>Kaspersky. (2026, 11 de febrero). <i>Kaspersky reports 15% growth in malicious email attacks in 2025</i>.</li>
+      <li>Manning, C. D., Raghavan, P., y Schütze, H. (2008). <i>Introduction to information retrieval</i>, cap. 13. Cambridge University Press.</li>
+      <li>Metsis, V., Androutsopoulos, I., y Paliouras, G. (2006). Spam filtering with Naive Bayes – Which Naive Bayes? <i>CEAS 2006</i>.</li>
+      <li>Montgomery, D. C., y Runger, G. C. (2002). <i>Probabilidad y estadística aplicadas a la ingeniería</i> (2.ª ed.). Limusa Wiley.</li>
+      <li>Sahami, M., Dumais, S., Heckerman, D., y Horvitz, E. (1998). A Bayesian approach to filtering junk e-mail. <i>AAAI-98 Workshop on Learning for Text Categorization</i>.</li>
+      <li>Walpole, R. E., Myers, R. H., Myers, S. L., y Ye, K. (2012). <i>Probabilidad y estadística para ingeniería y ciencias</i> (9.ª ed.). Pearson.</li>
+    </ol>
+  </div>
+</section>
+</main>
+
+<footer class="pie">
+  <div class="envoltura">
+    <div class="datos"><img src="img/buap.png" alt="Escudo de la BUAP"><div>Benemérita Universidad Autónoma de Puebla<br>Probabilidad y Estadística · Proyecto integrador · 2026</div></div>
+    <div>Datos: corpus Enron-Spam (Metsis et al., 2006). Cifras calculadas por el equipo.</div>
+  </div>
+</footer>
+
+<script src="js/datos.js"></script>
+<script src="js/modelo.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
